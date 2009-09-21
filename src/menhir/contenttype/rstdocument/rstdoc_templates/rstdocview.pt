@@ -1,0 +1,5 @@
+<div id="rst-document">
+  <p tal:replace="structure view/html">
+    The transformed content.
+  </p>
+</div>

@@ -1,0 +1,7 @@
+<div class="rstdoc-raw-source">
+  <a class="download"
+     tal:attributes="href string:${context/@@absolute_url}/download">
+    Download raw source
+  </a>
+  <pre tal:content="context/raw_text" />
+</div>
