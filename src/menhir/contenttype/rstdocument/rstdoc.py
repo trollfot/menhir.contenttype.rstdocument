@@ -65,11 +65,11 @@ class RawDocSource(Page, ContextualMenuEntry):
 class Download(grok.View):
 
     def render(self):
-        html = self.context.raw_text
-        self.response.setHeader('Content-Type', "text/plain")
+        html = self.context.raw_text.encode('utf-8')
+        self.response.setHeader('Content-Type', "text/x-rst; charset=utf-8")
         self.response.setHeader('Content-Length', len(html))
         self.response.setHeader(
             'Content-Disposition',
-            'attachment; filename="%s.rst"' % self.context.title
-            )
+            'attachment; filename="%s.rst"' % (
+                self.context.title.encode('utf-8'))
         return html
