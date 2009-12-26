@@ -71,5 +71,5 @@ class Download(grok.View):
         self.response.setHeader(
             'Content-Disposition',
             'attachment; filename="%s.rst"' % (
-                self.context.title.encode('utf-8'))
+                self.context.title.encode('utf-8')))
         return html
