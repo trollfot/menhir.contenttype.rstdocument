@@ -6,7 +6,7 @@ from zope.schema import Text
 from zope.interface import Interface
 from docutils.core import publish_string
 from dolmen.app.security import content as security
-from dolmen.app.layout import Index, TabView, Page
+from dolmen.app.layout import Index, ContextualMenuEntry, Page
 from zope.i18nmessageid import MessageFactory
 
 _ = MessageFactory('dolmen')
@@ -56,10 +56,10 @@ class RsTDocView(Index):
         self.html = IDocumentTransformer(self.context).transform()
 
 
-class RawDocSource(Page, TabView):
+class RawDocSource(Page, ContextualMenuEntry):
     """
     """
-    grok.title("Raw source")
+    grok.title(_("Raw source"))
 
 
 class Download(grok.View):

@@ -25,7 +25,14 @@ setup(name='menhir.contenttype.rstdocument',
       install_requires=[
           'setuptools',
           'docutils',
+          'dolmen.app.layout',
+          'dolmen.app.security',
           'dolmen.content',
+          'dolmen.file',
+          'grokcore.view',
+          'zope.i18nmessageid',
+          'zope.interface',
+          'zope.schema',
       ],
       entry_points="""
       # -*- Entry points: -*-
