@@ -2,12 +2,14 @@
 
 import grokcore.view as grok
 import dolmen.content as content
-from zope.schema import Text
-from zope.interface import Interface
+
 from docutils.core import publish_string
+from dolmen import menu
+from dolmen.app.layout import Index, ContextualMenu, Page
 from dolmen.app.security import content as security
-from dolmen.app.layout import Index, ContextualMenuEntry, Page
 from zope.i18nmessageid import MessageFactory
+from zope.interface import Interface
+from zope.schema import Text
 
 _ = MessageFactory('dolmen')
 
@@ -25,9 +27,8 @@ class IRsTDocument(content.IBaseContent):
     """
     raw_text = Text(
         title = _(u"Restructured Text input"),
-        required = True
-        )
-    
+        required = True)
+
 
 class RsTDocument(content.Content):
     """A file content type storing the data in blobs.
@@ -56,14 +57,17 @@ class RsTDocView(Index):
         self.html = IDocumentTransformer(self.context).transform()
 
 
-class RawDocSource(Page, ContextualMenuEntry):
+@menu.menuentry(ContextualMenu)
+class RawDocSource(Page):
+    """Displays the raw input text.
     """
-    """
+    grok.context(IRsTDocument)
     grok.title(_("Raw source"))
 
 
 class Download(grok.View):
-
+    """Downloading view that exposes the raw content.
+    """
     def render(self):
         html = self.context.raw_text.encode('utf-8')
         self.response.setHeader('Content-Type', "text/x-rst; charset=utf-8")
