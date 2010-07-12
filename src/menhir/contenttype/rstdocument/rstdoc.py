@@ -11,7 +11,7 @@ from zope.i18nmessageid import MessageFactory
 from zope.interface import Interface
 from zope.schema import Text
 
-_ = MessageFactory('dolmen')
+_ = MessageFactory('menhir.contenttype.rstdocument')
 
 
 class IDocumentTransformer(Interface):
