@@ -17,6 +17,7 @@ from zope.event import notify
 from zope.lifecycleevent import (
     Attributes, ObjectModifiedEvent, IObjectModifiedEvent)
 
+
 _ = MessageFactory('menhir.contenttype.rstdocument')
 
 
@@ -38,7 +39,7 @@ class IRsTDocument(content.IBaseContent):
     processed_text = Text(
         title = _(u"Restructured Text input"),
         required = True)
-    
+
 
 class RsTDocument(content.Content):
     """A file content type storing the data in blobs.
@@ -86,11 +87,13 @@ class RsTDocView(Index):
 
 @menuentry(ContextualMenu)
 class RawDocSource(Page):
+    """Displays the raw input text.
+    """
     grok.title(_("Raw source"))
 
 
 class Download(grok.View):
-    """Download view.
+    """Downloading view that exposes the raw content.
     """
     def render(self):
         html = self.context.raw_text.encode('utf-8')
