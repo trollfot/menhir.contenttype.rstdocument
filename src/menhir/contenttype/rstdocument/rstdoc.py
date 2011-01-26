@@ -1,15 +1,23 @@
 # -*- coding: utf-8 -*-
 
-import grokcore.view as grok
 import dolmen.content as content
-from zope.schema import Text
-from zope.interface import Interface
-from docutils.core import publish_string
-from dolmen.app.security import content as security
-from dolmen.app.layout import Index, ContextualMenuEntry, Page
-from zope.i18nmessageid import MessageFactory
+import grokcore.view as grok
 
-_ = MessageFactory('dolmen')
+from cStringIO import StringIO
+from docutils.core import publish_parts
+
+from dolmen.menu import menuentry
+from dolmen.app.layout import Index, ContextualMenu, Page
+from dolmen.app.security import content as security
+
+from zope.i18nmessageid import MessageFactory
+from zope.interface import Interface
+from zope.schema import Text
+from zope.event import notify
+from zope.lifecycleevent import (
+    Attributes, ObjectModifiedEvent, IObjectModifiedEvent)
+
+_ = MessageFactory('menhir.contenttype.rstdocument')
 
 
 class IDocumentTransformer(Interface):
@@ -25,8 +33,11 @@ class IRsTDocument(content.IBaseContent):
     """
     raw_text = Text(
         title = _(u"Restructured Text input"),
-        required = True
-        )
+        required = True)
+
+    processed_text = Text(
+        title = _(u"Restructured Text input"),
+        required = True)
     
 
 class RsTDocument(content.Content):
@@ -44,26 +55,43 @@ class RstDocumentTransformer(grok.Adapter):
     def transform(self, source="restructuredtext", target="html"):
         """Transforms a RsT document to another format.
         """
-        return publish_string(self.context.raw_text,
-                              parser_name=source,
-                              writer_name=target)
+        settings = {'initial_header_level': 2,
+                    'default_output_encoding': 'utf-8',}
+        return publish_parts(
+            self.context.raw_text,
+            settings_overrides=settings,
+            parser_name='restructuredtext',
+            writer_name='html')['body']
+
+
+@grok.subscribe(IRsTDocument, IObjectModifiedEvent)
+def TransformRstDocument(doc, event):
+    for desc in event.descriptions:
+        if desc.interface.isOrExtends(IRsTDocument):
+            if 'raw_text' in desc.attributes:
+                processed = IDocumentTransformer(doc).transform()
+                doc.processed_text = processed
+                notify(ObjectModifiedEvent(
+                    doc, Attributes(IRsTDocument, 'processed_text')))
+                return True
+    return False
 
 
 class RsTDocView(Index):
     grok.name("index")
 
     def update(self):
-        self.html = IDocumentTransformer(self.context).transform()
+        self.html = self.context.processed_text
 
 
-class RawDocSource(Page, ContextualMenuEntry):
-    """
-    """
+@menuentry(ContextualMenu)
+class RawDocSource(Page):
     grok.title(_("Raw source"))
 
 
 class Download(grok.View):
-
+    """Download view.
+    """
     def render(self):
         html = self.context.raw_text.encode('utf-8')
         self.response.setHeader('Content-Type', "text/x-rst; charset=utf-8")
